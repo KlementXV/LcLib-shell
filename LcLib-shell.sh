@@ -6,14 +6,20 @@
 #© 2022 Clément Levoux
 
 #Links
-LINK_UPDATE_FIREWALL_FILE='https://raw.githubusercontent.com/firewall/'
-LINK_ANSSI_CONF='https://raw.githubusercontent.com/anssi_conf.sh'
-LINK_SSH_KEYS='https://raw.githubusercontent.com/clementlvx/test/main/key'
-LINK_SSH_CONFIG='https://raw.githubusercontent.com/clementlvx/test/main/sshd_config'
-LINK_SSH_BANNER='https://raw.githubusercontent.com/clementlvx/test/main/issue.net'
+LINK_UPDATE_FIREWALL_FILE='https://raw.githubusercontent.com/clementlvx/LcLib-shell/master/firewall/'
+LINK_ANSSI_CONF='https://raw.githubusercontent.com/clementlvx/LcLib-shell/master/Anssi/anssi_conf.sh'
+LINK_SSH_KEYS='https://raw.githubusercontent.com/clementlvx/LcLib-shell/master/ssh/keys/'
+LINK_SSH_CONFIG='https://raw.githubusercontent.com/clementlvx/LcLib-shell/master/ssh/sshd_config'
+LINK_SSH_BANNER='https://raw.githubusercontent.com/clementlvx/LcLib-shell/master/ssh/issue.net'
 LINK_DOCKER_INSTALL='https://raw.githubusercontent.com/docker/docker-install/master/install.sh'
+LINK_DOCKERCOMPOSE_INSTALL='https://github.com/docker/compose/releases/download/v2.2.3/docker-compose-$(uname -s)-$(uname -m)'
+LINK_AVALANCHE_CONFIG='https://raw.githubusercontent.com/clementlvx/LcLib-shell/master/ssh/sshd_config'
+
+LIST_REPO="download.docker.com ftp.us.debian.org ftp.fr.debian.org security.debian.org deb.debian.org "
 
 LOG_DIR=/var/log
+LOG_DATE=$(date +"%m-%d-%y_%Hh%M")
+
 BLACK='\033[0;30m'
 ERROR='\033[0;31m' #ERROR or REMOVE
 OK='\033[0;32m' #OK
@@ -57,6 +63,8 @@ ScriptName=`basename "$0" .sh`
     LcLib_init_envVariable() {
         LcLib_printer "INIT ENV file" WARNING
         LcLib_init_packageManager
+        LcLib_export REPOSITORY_SERVER ${LIST_REPO}
+
     }
     #Delete and init another .env
     LcLib_reset_envVariable() {
@@ -64,7 +72,7 @@ ScriptName=`basename "$0" .sh`
         LcLib_init_envVariable #Init .env
     }
 
-#Other
+#Logs
     #Command echo - LcLib_printer "Bonjour" ERROR
     LcLib_printer() {
         text=$1
@@ -73,33 +81,59 @@ ScriptName=`basename "$0" .sh`
         echo -e "${!color}${text}${NORMAL}"
         #if log == true { print in logfile }
     }
-    LcLib_wget_testExec() {
-        LINK=$1
-        ACTION=$2
-        DESCRIPTION=$3
-        if [[ `wget -S --spider $LINK 2>&1 | grep 'HTTP/1.1 200 OK'` ]]; then
-            LcLib_printer $DESCRIPTION $ACTION
-            wget -qO - $LINK | sudo bash
+    LcLib_Log() { #A tester LcLib_Log "text"
+        TEXT=$1
+        NOW=$(date +"%m/%d/%y %Hh%M")
+        echo "${NOW} ${TEXT}" >> "./${LOG_DATE}_LCLIB"
+    }
+
+#Other
+    LcLib_testLink(){
+        link=$1
+        if [[ `wget -S --spider "${link}" 2>&1 | grep 'HTTP/1.1 200 OK'` ]]; then
+            echo "ok"
         fi
     }
-    LcLib_wget_testExec() {
-        for i in $*; do 
-            cat "./ssh/keys/${i}"
+    LcLib_alreadyInstalled(){
+        program=$1
+        if command -v ${program} &> /dev/null
+        then
+            echo "yes"
+        else
+            echo "no"
+        fi
+    }
+    LcLib_update_system() { # LcLib_update_system
+        sudo ${packageManager} -qq update && sudo ${packageManager} -qq upgrade -y && sudo ${packageManager} -qq full-upgrade -y && sudo ${packageManager} -qq autoremove -y
+    }
+    LcLib_justInstall(){ # LcLib_justInstall tree gcc ...
+        LcLib_update_system
+        for i in $*; do
+            res=$(LcLib_alreadyInstalled ${i}) #Test if program already installed
+            if [ "$res" = "no" ]; then
+                if sudo ${packageManager} install -y ${i} &>/dev/null; then
+                    LcLib_printer "${i} INSTALLATION" INSTALL
+                else
+                    LcLib_printer "ERROR ${i} INSTALLATION" ERROR
+                fi
+            else
+                LcLib_printer "${i} ALREADY INSTALLED" INFO
+            fi
         done
     }
 
 #===============================
 #Checks
     #Check if sudo are installed, else install it - checkInstall_sudo
-    LcLib_check_Install_sudo() {
+    LcLib_check_Install_sudo() { # LcLib_check_Install_sudo
         if ! hash sudo 2>/dev/null; then
-            LcLib_printer "INSTALL SUDO" INSTALL
+            LcLib_printer "SUDO INSTALLATION" INSTALL
             su -c "${packageManager} install sudo ; echo '$USER ALL=(ALL:ALL) ALL' | sudo EDITOR='tee -a' visudo"
         fi
     }
 
     #Check if script are run with root - check_not_superuser
-    LcLib_check_not_superuser() {
+    LcLib_check_not_superuser() { # LcLib_check_not_superuser
         #not superuser check
         if ! [ "$EUID" -ne 0 ] ; then
             LcLib_printer "Dont run this script as root, run as the user whose environment u want to change." ERROR
@@ -107,39 +141,52 @@ ScriptName=`basename "$0" .sh`
         fi
     }
 
-#Install & Update
-    LcLib_update_system() {
-        sudo ${packageManager} -qq update && sudo ${packageManager} -qq upgrade -y && sudo ${packageManager} -qq full-upgrade -y && sudo ${packageManager} -qq autoremove -y
-    }
-
 #SSH
+    LcLib_get_sshPort() { # LcLib_get_sshPort
+        cat /etc/ssh/sshd_config | grep "Port " | cut -d " " -f 2
+    }
     #Check if script are run with root - check_not_superuser
-    LcLib_update_ssh() {
+    LcLib_update_ssh() { #LcLib_update_ssh 22 clm claude françois
+        SSH_PORT=$1
+        SSH_KEYS=${@:2}
+
         sudo rm ~/.ssh
         sudo mkdir ~/.ssh
         sudo chmod 700 ~/.ssh
-        sudo wget -qO - ${LINK_SSH_KEYS} | cat >> ~/.ssh/authorized_keys
+        for i in ${SSH_KEYS}; do
+            sudo wget -qO - "${LINK_SSH_KEYS}${i}" | cat >> ~/.ssh/authorized_keys
+        done
         chmod 600 ~/.ssh/authorized_keys
         sudo wget -O /etc/issue.net ${LINK_SSH_BANNER}
         sudo wget -O /etc/ssh/sshd_config ${LINK_SSH_CONFIG}
+        sudo sed -i "s/Port 22/Port ${SSH_PORT}/" /etc/ssh/sshd_config
         sudo service ssh restart
     }
 
 #DNS
-    LcLib_update_dns() {
-        echo nameserver 1.1.1.1 | sudo tee /etc/resolv.conf
-        echo nameserver 8.8.8.8 | sudo tee -a /etc/resolv.conf
-        echo nameserver 8.8.4.4 | sudo tee -a /etc/resolv.conf
+    LcLib_get_dns() { # LcLib_get_dns
+        res=$(cat /etc/resolv.conf | grep ^nameserver | cut -d " " -f 2) #Get DNS
+        for i in ${res}; do
+            echo ${i}
+        done
+    }
+    LcLib_update_dns() { # LcLib_update_dns 1.1.1.1 8.8.8.8 8.8.4.4
+        res=$(LcLib_get_dns) #Get DNS
+        for i in $*; do
+            if [[ ! "${res[*]}" =~ "${i}" ]]; then
+                echo nameserver ${i} | sudo tee -a /etc/resolv.conf
+            fi
+        done
     }
 
 #Firewall
-    LcLib_install_firewall() {
+    LcLib_install_firewall() { # LcLib_install_firewall iptables
         PROGRAM=$1
         if [ "$PROGRAM" = "ufw" ]; then 
-            LcLib_printer "INSTALL UFW" INSTALL
+            LcLib_printer "UFW INSTALLATION" INSTALL
             sudo ${packageManager} install ufw -y
         elif [ "$PROGRAM" = "iptables" ]; then 
-            LcLib_printer "INSTALL IPTABLES" INSTALL
+            LcLib_printer "IPTABLES INSTALLATION" INSTALL
             sudo ${packageManager} install iptables -y
             echo iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo debconf-set-selections
             echo iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo debconf-set-selections
@@ -148,39 +195,51 @@ ScriptName=`basename "$0" .sh`
             LcLib_printer "$1 UNSUPPORTED INSTALLATION" ERROR
         fi
     }
-    LcLib_update_firewall() {
-        PROGRAM=$1
-        VERSION=$2
-        LcLib_wget_testExec '${LINK_UPDATE_FIREWALL_FILE}update-${PROGRAM}-${VERSION}.sh' INSTALL "UPDATE ${PROGRAM} ${VERSION}"
+    LcLib_update_firewall() { # LcLib_update_firewall iptables docker
+        PROGRAM=$1 #Firewall used
+        VERSION=$2 #Script Version
+        SSH_PORT=$(LcLib_get_sshPort) #Get SSH
+        DNS=$(LcLib_get_dns) #Get DNS
+
+        res=$(LcLib_testLink "${LINK_UPDATE_FIREWALL_FILE}update-${PROGRAM}-${VERSION}.sh") #Test Script Link
+        if [ "$res" = "ok" ]; then
+            LcLib_printer "UPDATE ${PROGRAM} ${VERSION}" INSTALL
+            wget -qO - "${LINK_UPDATE_FIREWALL_FILE}update-${PROGRAM}-${VERSION}.sh" | sudo bash
+        else
+            LcLib_printer "ERROR UPDATE ${PROGRAM} ${VERSION}" ERROR
+        fi
     }
 
 #Docker
-    LcLib_install_docker() {
-        LcLib_wget_testExec LINK_DOCKER_INSTALL INSTALL "INSTALL DOCKER"
-
+    LcLib_install_docker() { # LcLib_install_docker
+        res=$(LcLib_testLink ${LINK_DOCKER_INSTALL}) #Test Docker Link
+        if [ "$res" = "ok" ]; then
+            LcLib_printer "DOCKER INSTALLATION" INSTALL
+            wget -qO - ${LINK_DOCKER_INSTALL} | sudo bash
+        else
+            LcLib_printer "ERROR DOCKER INSTALLATION" ERROR
+        fi
         #Verif if iptables install
         ##/sbin/iptables-save > /etc/iptables/rules.v4
         ##/sbin/ip6tables-save > /etc/iptables/rules.v6
     }
-    LcLib_install_dockerCompose() {
-        if [[ `wget -S --spider "https://github.com/docker/compose/releases/download/v2.2.3/docker-compose-$(uname -s)-$(uname -m)" 2>&1 | grep 'HTTP/1.1 200 OK'` ]]; then
-            LcLib_printer "INSTALL DOCKER COMPOSE" INSTALL
-            sudo curl -L "https://github.com/docker/compose/releases/download/v2.2.3/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+    LcLib_install_dockerCompose() { #LcLib_install_dockerCompose
+        if [[ `wget -S --spider ${LINK_DOCKERCOMPOSE_INSTALL} 2>&1 | grep 'HTTP/1.1 200 OK'` ]]; then
+            LcLib_printer "DOCKER COMPOSE INSTALLATION" INSTALL
+            sudo curl -L ${LINK_DOCKERCOMPOSE_INSTALL} -o /usr/local/bin/docker-compose
             sudo chmod +x /usr/local/bin/docker-compose
             docker-compose --version
         else
-            LcLib_printer "ERROR INSTALL DOCKER COMPOSE" ERROR
+            LcLib_printer "ERROR DOCKER COMPOSE INSTALLATION" ERROR
         fi
     }
 
-#Node-Avalanche
-
 
 #ANSSI
-    LcLib_anssi_conf() {
+    LcLib_anssi_conf() { #LcLib_anssi_conf
         #ivp6=$1 #False for disable IPV6
         #Sysctl Configuration
-        sudo wget -qO - $LINK_ANSSI_CONF | sudo bash #-s ${ipv6}
+        sudo wget -qO - ${LINK_ANSSI_CONF} | sudo bash #-s ${ipv6}
     }
 #===============================
 #Check if we can import .env; else we init it.

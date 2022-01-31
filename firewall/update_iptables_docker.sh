@@ -7,9 +7,9 @@
 IPT="/sbin/iptables"
 #IPTs4="/sbin/iptables-save"
 #IPTs6="/sbin/ip6tables-save"
-DNS_SERVER="8.8.4.4 8.8.8.8 1.1.1.1"
-REPOSITORY_SERVER="download.docker.com ftp.us.debian.org ftp.fr.debian.org security.debian.org deb.debian.org "
-PORT_SSH="22"
+#REPOSITORY_SERVER="download.docker.com ftp.us.debian.org ftp.fr.debian.org security.debian.org deb.debian.org "
+SSH_PORT=$1
+DNS=${@:2}
 
 echo "IPTABLES - RESET F"
 $IPT -F
@@ -25,12 +25,12 @@ echo "IPTABLES - RESET MANGLE X"
 $IPT -t mangle -X
 
 
-echo "IPTABLES - SSH ($PORT_SSH) ACCEPT"
-$IPT -t filter -A INPUT -p TCP --dport $PORT_SSH -j ACCEPT
-$IPT -t filter -A OUTPUT -p TCP --sport $PORT_SSH -j ACCEPT
+echo "IPTABLES - SSH ($SSH_PORT) ACCEPT"
+$IPT -t filter -A INPUT -p TCP --dport $SSH_PORT -j ACCEPT
+$IPT -t filter -A OUTPUT -p TCP --sport $SSH_PORT -j ACCEPT
 
 echo "IPTABLES - CONFIG DNS"
-for ipDNS in $DNS_SERVER
+for ipDNS in $DNS
 do
 	echo "Allowing DNS lookups (tcp, udp port 53) to server '$ipDNS'"
 	$IPT -A OUTPUT -p udp -d $ipDNS --dport 53 -m state --state NEW,ESTABLISHED -j ACCEPT
