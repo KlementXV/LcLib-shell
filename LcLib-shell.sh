@@ -15,8 +15,6 @@ LINK_DOCKER_INSTALL='https://raw.githubusercontent.com/docker/docker-install/mas
 LINK_DOCKERCOMPOSE_INSTALL='https://github.com/docker/compose/releases/download/v2.2.3/docker-compose-$(uname -s)-$(uname -m)'
 LINK_AVALANCHE_CONFIG='https://raw.githubusercontent.com/clementlvx/LcLib-shell/master/ssh/sshd_config'
 
-LIST_REPO="download.docker.com ftp.us.debian.org ftp.fr.debian.org security.debian.org deb.debian.org "
-
 LOG_DIR=/var/log
 LOG_DATE=$(date +"%m-%d-%y_%Hh%M")
 
@@ -63,8 +61,6 @@ ScriptName=`basename "$0" .sh`
     LcLib_init_envVariable() {
         LcLib_printer "INIT ENV file" WARNING
         LcLib_init_packageManager
-        LcLib_export REPOSITORY_SERVER ${LIST_REPO}
-
     }
     #Delete and init another .env
     LcLib_reset_envVariable() {
@@ -79,6 +75,26 @@ ScriptName=`basename "$0" .sh`
         color=$2
         log=$3
         echo -e "${!color}${text}${NORMAL}"
+        #if log == true { print in logfile }
+    }
+    LcLib_printer_loading() {
+        text=$1
+        status=$2
+        if [ "$status" = "ERROR" ]; then
+            echo -e -ne "${ERROR}--> ${text} - ERROR${NORMAL}\r"
+            echo -e -ne "\n"
+        elif [ "$status" = "OK" ]; then
+            echo -e -ne "${OK}--> ${text} - DONE${NORMAL}\r"
+            echo -e -ne "\n"
+        elif [ "$status" = "ALREADY" ]; then
+            echo -e -ne "${OK}--> ${text} - ALREADY INSTALLED${NORMAL}\r"
+            echo -e -ne "\n"
+        elif [ "$status" = "APPLY" ]; then
+            echo -e -ne "${OK}--> ${text} - APPLY${NORMAL}\r"
+            echo -e -ne "\n"
+        else
+            echo -e -ne "${INSTALL}--> ${text} - ...${NORMAL}\r"
+        fi
         #if log == true { print in logfile }
     }
     LcLib_Log() { #A tester LcLib_Log "text"
@@ -104,20 +120,27 @@ ScriptName=`basename "$0" .sh`
         fi
     }
     LcLib_update_system() { # LcLib_update_system
-        sudo ${packageManager} -qq update && sudo ${packageManager} -qq upgrade -y && sudo ${packageManager} -qq full-upgrade -y && sudo ${packageManager} -qq autoremove -y
+        LcLib_printer "UPDATE SYSTEM" INFO
+        sudo apt-get -qq update && sudo apt-get -qq upgrade -y && sudo apt-get -qq full-upgrade -y && sudo apt-get -qq autoremove -y
     }
     LcLib_justInstall(){ # LcLib_justInstall tree gcc ...
         LcLib_update_system
         for i in $*; do
+            LcLib_printer_loading "${i}" INSTALL
             res=$(LcLib_alreadyInstalled ${i}) #Test if program already installed
             if [ "$res" = "no" ]; then
-                if sudo ${packageManager} install -y ${i} &>/dev/null; then
-                    LcLib_printer "${i} INSTALLATION" INSTALL
+                if sudo apt-get install -y ${i} &>/dev/null; then
+                    newRes=$(LcLib_alreadyInstalled ${i})
+                    if [ "$newRes" = "no" ]; then
+                        LcLib_printer_loading "${i}" ERROR
+                    else
+                        LcLib_printer_loading "${i}" OK
+                    fi
                 else
-                    LcLib_printer "ERROR ${i} INSTALLATION" ERROR
+                    LcLib_printer_loading "${i}" ERROR
                 fi
             else
-                LcLib_printer "${i} ALREADY INSTALLED" INFO
+                LcLib_printer_loading "${i}" ALREADY
             fi
         done
     }
@@ -128,7 +151,7 @@ ScriptName=`basename "$0" .sh`
     LcLib_check_Install_sudo() { # LcLib_check_Install_sudo
         if ! hash sudo 2>/dev/null; then
             LcLib_printer "SUDO INSTALLATION" INSTALL
-            su -c "${packageManager} install sudo ; echo '$USER ALL=(ALL:ALL) ALL' | sudo EDITOR='tee -a' visudo"
+            su -c "apt-get install sudo ; echo '$USER ALL=(ALL:ALL) ALL' | sudo EDITOR='tee -a' visudo"
         fi
     }
 
@@ -161,6 +184,7 @@ ScriptName=`basename "$0" .sh`
         sudo wget -O /etc/ssh/sshd_config ${LINK_SSH_CONFIG}
         sudo sed -i "s/Port 22/Port ${SSH_PORT}/" /etc/ssh/sshd_config
         sudo service ssh restart
+        LcLib_printer_loading "DNS ${*}" APPLY
     }
 
 #DNS
@@ -172,6 +196,7 @@ ScriptName=`basename "$0" .sh`
     }
     LcLib_update_dns() { # LcLib_update_dns 1.1.1.1 8.8.8.8 8.8.4.4
         res=$(LcLib_get_dns) #Get DNS
+        LcLib_printer_loading "DNS ${*}" APPLY
         for i in $*; do
             if [[ ! "${res[*]}" =~ "${i}" ]]; then
                 echo nameserver ${i} | sudo tee -a /etc/resolv.conf
@@ -184,13 +209,13 @@ ScriptName=`basename "$0" .sh`
         PROGRAM=$1
         if [ "$PROGRAM" = "ufw" ]; then 
             LcLib_printer "UFW INSTALLATION" INSTALL
-            sudo ${packageManager} install ufw -y
+            sudo apt-get install ufw -y
         elif [ "$PROGRAM" = "iptables" ]; then 
             LcLib_printer "IPTABLES INSTALLATION" INSTALL
-            sudo ${packageManager} install iptables -y
+            sudo apt-get install iptables -y
             echo iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo debconf-set-selections
             echo iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo debconf-set-selections
-            sudo ${packageManager} -y install iptables-persistent
+            sudo apt-get -y install iptables-persistent
         else
             LcLib_printer "$1 UNSUPPORTED INSTALLATION" ERROR
         fi
@@ -200,6 +225,8 @@ ScriptName=`basename "$0" .sh`
         VERSION=$2 #Script Version
         SSH_PORT=$(LcLib_get_sshPort) #Get SSH
         DNS=$(LcLib_get_dns) #Get DNS
+
+        LcLib_printer_loading "${PROGRAM} ${VERSION} CONF" INFO
 
         res=$(LcLib_testLink "${LINK_UPDATE_FIREWALL_FILE}update-${PROGRAM}-${VERSION}.sh") #Test Script Link
         if [ "$res" = "ok" ]; then
@@ -212,25 +239,34 @@ ScriptName=`basename "$0" .sh`
 
 #Docker
     LcLib_install_docker() { # LcLib_install_docker
+        LcLib_printer_loading "DOCKER" INSTALL
         res=$(LcLib_testLink ${LINK_DOCKER_INSTALL}) #Test Docker Link
         if [ "$res" = "ok" ]; then
-            LcLib_printer "DOCKER INSTALLATION" INSTALL
             wget -qO - ${LINK_DOCKER_INSTALL} | sudo bash
+            if command -v docker >/dev/null; then
+                LcLib_printer_loading "DOCKER" OK
+            else
+                LcLib_printer_loading "DOCKER" ERROR
+            fi
         else
-            LcLib_printer "ERROR DOCKER INSTALLATION" ERROR
+            LcLib_printer_loading "DOCKER" ERROR
         fi
         #Verif if iptables install
         ##/sbin/iptables-save > /etc/iptables/rules.v4
         ##/sbin/ip6tables-save > /etc/iptables/rules.v6
     }
     LcLib_install_dockerCompose() { #LcLib_install_dockerCompose
+        LcLib_printer_loading "DOCKER-COMPOSE" INSTALL
         if [[ `wget -S --spider ${LINK_DOCKERCOMPOSE_INSTALL} 2>&1 | grep 'HTTP/1.1 200 OK'` ]]; then
-            LcLib_printer "DOCKER COMPOSE INSTALLATION" INSTALL
             sudo curl -L ${LINK_DOCKERCOMPOSE_INSTALL} -o /usr/local/bin/docker-compose
             sudo chmod +x /usr/local/bin/docker-compose
-            docker-compose --version
+            if command -v docker-compose >/dev/null; then
+                LcLib_printer_loading "DOCKER-COMPOSE" OK
+            else
+                LcLib_printer_loading "DOCKER-COMPOSE" ERROR
+            fi
         else
-            LcLib_printer "ERROR DOCKER COMPOSE INSTALLATION" ERROR
+            LcLib_printer_loading "DOCKER-COMPOSE" ERROR
         fi
     }
 
@@ -239,9 +275,10 @@ ScriptName=`basename "$0" .sh`
     LcLib_anssi_conf() { #LcLib_anssi_conf
         #ivp6=$1 #False for disable IPV6
         #Sysctl Configuration
+        LcLib_printer_loading "APPLY ANSSI CONF" INFO
         sudo wget -qO - ${LINK_ANSSI_CONF} | sudo bash #-s ${ipv6}
     }
 #===============================
 #Check if we can import .env; else we init it.
 LcLib_check_not_superuser
-LcLib_check_envVariable
+#LcLib_check_envVariable

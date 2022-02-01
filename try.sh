@@ -12,6 +12,5 @@ source ./LcLib-shell.sh
 #    source ./LcLib-shell.sh
 #fi
 
-echo ${REPOSITORY_SERVER}
-
+LcLib_get_dns
 exit 0

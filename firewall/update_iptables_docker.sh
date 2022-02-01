@@ -7,7 +7,7 @@
 IPT="/sbin/iptables"
 #IPTs4="/sbin/iptables-save"
 #IPTs6="/sbin/ip6tables-save"
-#REPOSITORY_SERVER="download.docker.com ftp.us.debian.org ftp.fr.debian.org security.debian.org deb.debian.org "
+REPOSITORY_SERVER="download.docker.com ftp.us.debian.org ftp.fr.debian.org security.debian.org deb.debian.org "
 SSH_PORT=$1
 DNS=${@:2}
 
