@@ -278,7 +278,7 @@ ScriptName=`basename "$0" .sh`
         #ivp6=$1 #False for disable IPV6
         #Sysctl Configuration
         LcLib_printer_loading "APPLY ANSSI CONF" INFO
-        LcLib_execNull "wget -qO - ${LINK_ANSSI_CONF} | sudo bash" #-s ${ipv6} 
+        LcLib_execNull "wget -qO - ${LINK_ANSSI_CONF} | sudo bash"
     }
 #===============================
 #Check if we can import .env; else we init it.
