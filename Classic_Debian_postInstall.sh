@@ -3,7 +3,7 @@
 LINK_LCLIB='https://raw.githubusercontent.com/clementlvx/LcLib-shell/master/LcLib-shell.sh'
 
 Main() {
-    source ./LcLib-shell.sh
+    source ./LcLib-shell.sh -debug
 
     LcLib_update_dns 1.1.1.1 8.8.8.8 8.8.4.4
     LcLib_install_firewall iptables
