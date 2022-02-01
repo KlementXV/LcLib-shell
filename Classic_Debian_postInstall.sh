@@ -18,16 +18,12 @@ Main() {
     fi
 }
 
-test_LcLib() {
-    if test -f ./LcLib-shell.sh; then
-        echo "1"
-    else
-        if [[ `wget -S --spider "${LINK_LCLIB}" 2>&1 | grep 'HTTP/1.1 200 OK'` ]]; then
-            wget https://raw.githubusercontent.com/clementlvx/LcLib-shell/master/LcLib-shell.sh
-            echo "0"
-        fi
+if test -f ./LcLib-shell.sh; then
+    Main $1 "1"
+else
+    if [[ `wget -S --spider "${LINK_LCLIB}" 2>&1 | grep 'HTTP/1.1 200 OK'` ]]; then
+        wget https://raw.githubusercontent.com/clementlvx/LcLib-shell/master/LcLib-shell.sh
+        Sleep 5
+        Main $1 "0"
     fi
-}
-
-res=test_LcLib
-Main $1 $res
+fi
