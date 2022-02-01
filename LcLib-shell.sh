@@ -136,18 +136,26 @@ ScriptName=`basename "$0" .sh`
         LcLib_execNull "apt-get -qq update && apt-get -qq upgrade -y && apt-get -qq full-upgrade -y && apt-get -qq autoremove -y"
     }
     LcLib_justInstall(){ # LcLib_justInstall tree gcc ...
+        OPTION=$1
+        PROGRAMS=${@:2}
+        
         LcLib_update_system
-        for i in $*; do
+        for i in $PROGRAMS; do
             LcLib_printer_loading "${i}" INSTALL
             if ! LcLib_alreadyInstalled "${i}"; then
-                if LcLib_execNull "apt-get install -y ${i}"; then
-                    if ! LcLib_alreadyInstalled "${i}"; then
-                        LcLib_printer_loading "${i}" ERROR
-                    else
-                        LcLib_printer_loading "${i}" OK
-                    fi
+                if [ $OPTION = "-force" ]; then
+                    LcLib_execNull "apt-get install -y ${i}"
+                    LcLib_printer_loading "${i}" OK
                 else
-                    LcLib_printer_loading "${i}" ERROR
+                    if LcLib_execNull "apt-get install -y ${i}"; then
+                        if ! LcLib_alreadyInstalled "${i}"; then
+                            LcLib_printer_loading "${i}" ERROR
+                        else
+                            LcLib_printer_loading "${i}" OK
+                        fi
+                    else
+                        LcLib_printer_loading "${i}" ERROR
+                    fi
                 fi
             else
                 LcLib_printer_loading "${i}" ALREADY
@@ -218,12 +226,12 @@ ScriptName=`basename "$0" .sh`
     LcLib_install_firewall() { # LcLib_install_firewall iptables
         PROGRAM=$1
         if [ "$PROGRAM" = "ufw" ]; then 
-            LcLib_justInstall "ufw"
+            LcLib_justInstall "-classic" "ufw"
         elif [ "$PROGRAM" = "iptables" ]; then 
-            LcLib_justInstall "iptables"
+            LcLib_justInstall "-classic" "iptables"
             LcLib_execNull "echo iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo debconf-set-selections"
             LcLib_execNull "echo iptables-persistent iptables-persistent/autosave_v6 boolean true | sudo debconf-set-selections"
-            LcLib_justInstall "iptables" "iptables-persistent"
+            LcLib_justInstall "-force" "iptables-persistent"
         else
             LcLib_printer "$1 UNSUPPORTED INSTALLATION" ERROR
         fi
