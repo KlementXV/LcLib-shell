@@ -134,9 +134,9 @@ ScriptName=`basename "$0" .sh`
         LcLib_update_system
         for i in $*; do
             LcLib_printer_loading "${i}" INSTALL
-            if ! LcLib_alreadyInstalled ${i}; then
+            if ! LcLib_alreadyInstalled "${i}"; then
                 if LcLib_execNull "apt-get install -y ${i}"; then
-                    if ! LcLib_alreadyInstalled ${i}; then
+                    if ! LcLib_alreadyInstalled "${i}"; then
                         LcLib_printer_loading "${i}" ERROR
                     else
                         LcLib_printer_loading "${i}" OK
@@ -268,10 +268,10 @@ ScriptName=`basename "$0" .sh`
         if ! LcLib_alreadyInstalled "docker-compose"; then
             LcLib_execNull "curl -L "${LINK_DOCKERCOMPOSE_INSTALL}${UNAME_S}-${UNAME_M}" -o /usr/local/bin/docker-compose"
             LcLib_execNull "chmod +x /usr/local/bin/docker-compose"
-            if command -v docker-compose >/dev/null; then
-                LcLib_printer_loading "DOCKER-COMPOSE" OK
-            else
+            if ! LcLib_alreadyInstalled "docker-compose"; then
                 LcLib_printer_loading "DOCKER-COMPOSE" ERROR
+            else
+                LcLib_printer_loading "DOCKER-COMPOSE" OK
             fi
         else
             LcLib_printer_loading "DOCKER-COMPOSE" ALREADY
