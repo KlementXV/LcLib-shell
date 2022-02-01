@@ -115,7 +115,7 @@ ScriptName=`basename "$0" .sh`
     }
     LcLib_alreadyInstalledd(){
         program=$1
-        LcLib_execNull "command -v ${program}"
+        sudo sh -c "command -v ${program}"
     }
     LcLib_alreadyInstalled(){
         program=$1
