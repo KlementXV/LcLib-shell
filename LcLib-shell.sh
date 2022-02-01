@@ -118,7 +118,7 @@ ScriptName=`basename "$0" .sh`
     }
     LcLib_alreadyInstalled(){
         program=$1
-        if command -v ${program} &> /dev/null
+        if LcLib_execNull "command -v ${program}"
         then
             echo "yes"
         else
@@ -135,7 +135,7 @@ ScriptName=`basename "$0" .sh`
             LcLib_printer_loading "${i}" INSTALL
             res=$(LcLib_alreadyInstalled ${i}) #Test if program already installed
             if [ "$res" = "no" ]; then
-                if sudo apt-get install -y ${i} &>/dev/null; then
+                if LcLib_execNull "apt-get install -y ${i}"; then
                     newRes=$(LcLib_alreadyInstalled ${i})
                     if [ "$newRes" = "no" ]; then
                         LcLib_printer_loading "${i}" ERROR
