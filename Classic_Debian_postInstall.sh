@@ -15,6 +15,7 @@ Main() {
 }
 
 if test -f ./LcLib-shell.sh; then
+    EXIST="1"
     Main $1
 else
     if [[ `wget -S --spider "${LINK_LCLIB}" 2>&1 | grep 'HTTP/1.1 200 OK'` ]]; then
@@ -22,6 +23,8 @@ else
         sudo sh -c "wget ${LINK_LCLIB} && sleep 5" 2> /dev/null
         echo -e -ne "\033[0;36mDOWNLOAD LIBRARY - DONE\033[0m \r"
         echo -ne '\n'
+        EXIST="0"
         Main $1
     fi
 fi
+if [ "$FILEE" != "1" ] && [ "$1" != "-keep" ]; then rm ./LcLib-shell.sh; exit 0; fi
