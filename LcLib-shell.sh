@@ -122,27 +122,33 @@ ScriptName=`basename "$0" .sh`
         program=$1
         LcLib_execNull "command -v ${program}"
     }
+    LcLib_alreadyInstalledd(){
+        program=$1
+        if LcLib_execNull "command -v ${program}"
+        then
+            echo "yes"
+        else
+            echo "no"
+        fi
+    }
     LcLib_update_system() { # LcLib_update_system
         LcLib_printer "--> UPDATE SYSTEM" INFO
         LcLib_execNull "apt-get -qq update && apt-get -qq upgrade -y && apt-get -qq full-upgrade -y && apt-get -qq autoremove -y"
     }
     LcLib_justInstall(){ # LcLib_justInstall tree gcc ...
-        OPTION=$1
-        PROGRAMS=${@:2}
-        
         LcLib_update_system
-        for i in $PROGRAMS; do
+        for i in $*; do
             LcLib_printer_loading "${i}" INSTALL
             if ! LcLib_alreadyInstalled "${i}"; then
-                    if LcLib_execNull "apt-get install -y ${i}"; then
-                        if ! LcLib_alreadyInstalled "${i}"; then
-                            LcLib_printer_loading "${i}" ERROR
-                        else
-                            LcLib_printer_loading "${i}" OK
-                        fi
-                    else
+                if LcLib_execNull "apt-get install -y ${i}"; then
+                    if ! LcLib_alreadyInstalled "${i}"; then
                         LcLib_printer_loading "${i}" ERROR
+                    else
+                        LcLib_printer_loading "${i}" OK
                     fi
+                else
+                    LcLib_printer_loading "${i}" ERROR
+                fi
             else
                 LcLib_printer_loading "${i}" ALREADY
             fi
@@ -217,7 +223,7 @@ ScriptName=`basename "$0" .sh`
             LcLib_justInstall "iptables"
             LcLib_execNull "echo iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo debconf-set-selections"
             LcLib_execNull "echo iptables-persistent iptables-persistent/autosave_v6 boolean true | sudo debconf-set-selections"
-            LcLib_justInstall "iptables-persistent"
+            LcLib_justInstall "iptables" "iptables-persistent"
         else
             LcLib_printer "$1 UNSUPPORTED INSTALLATION" ERROR
         fi
