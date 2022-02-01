@@ -12,9 +12,11 @@ LINK_SSH_KEYS='https://raw.githubusercontent.com/clementlvx/LcLib-shell/master/s
 LINK_SSH_CONFIG='https://raw.githubusercontent.com/clementlvx/LcLib-shell/master/ssh/sshd_config'
 LINK_SSH_BANNER='https://raw.githubusercontent.com/clementlvx/LcLib-shell/master/ssh/issue.net'
 LINK_DOCKER_INSTALL='https://raw.githubusercontent.com/docker/docker-install/master/install.sh'
-LINK_DOCKERCOMPOSE_INSTALL='https://github.com/docker/compose/releases/download/v2.2.3/docker-compose-$(uname -s)-$(uname -m)'
+LINK_DOCKERCOMPOSE_INSTALL='https://github.com/docker/compose/releases/download/v2.2.3/docker-compose-'
 LINK_AVALANCHE_CONFIG='https://raw.githubusercontent.com/clementlvx/LcLib-shell/master/ssh/sshd_config'
 
+UNAME_S=$(uname -s)
+UNAME_M=$(uname -m)
 LOG_DIR=/var/log
 LOG_DATE=$(date +"%m-%d-%y_%Hh%M")
 
@@ -184,7 +186,7 @@ ScriptName=`basename "$0" .sh`
         sudo wget -O /etc/ssh/sshd_config ${LINK_SSH_CONFIG}
         sudo sed -i "s/Port 22/Port ${SSH_PORT}/" /etc/ssh/sshd_config
         sudo service ssh restart
-        LcLib_printer_loading "DNS ${*}" APPLY
+        LcLib_printer_loading "SSH CONF ${*}" APPLY
     }
 
 #DNS
@@ -228,7 +230,7 @@ ScriptName=`basename "$0" .sh`
 
         LcLib_printer_loading "${PROGRAM} ${VERSION} CONF" INFO
 
-        res=$(LcLib_testLink "${LINK_UPDATE_FIREWALL_FILE}update-${PROGRAM}-${VERSION}.sh") #Test Script Link
+        res=$(LcLib_testLink "${LINK_UPDATE_FIREWALL_FILE}update_${PROGRAM}_${VERSION}.sh") #Test Script Link
         if [ "$res" = "ok" ]; then
             LcLib_printer "UPDATE ${PROGRAM} ${VERSION}" INSTALL
             wget -qO - "${LINK_UPDATE_FIREWALL_FILE}update-${PROGRAM}-${VERSION}.sh" | sudo bash
@@ -257,14 +259,10 @@ ScriptName=`basename "$0" .sh`
     }
     LcLib_install_dockerCompose() { #LcLib_install_dockerCompose
         LcLib_printer_loading "DOCKER-COMPOSE" INSTALL
-        if [[ `wget -S --spider ${LINK_DOCKERCOMPOSE_INSTALL} 2>&1 | grep 'HTTP/1.1 200 OK'` ]]; then
-            sudo curl -L ${LINK_DOCKERCOMPOSE_INSTALL} -o /usr/local/bin/docker-compose
-            sudo chmod +x /usr/local/bin/docker-compose
-            if command -v docker-compose >/dev/null; then
-                LcLib_printer_loading "DOCKER-COMPOSE" OK
-            else
-                LcLib_printer_loading "DOCKER-COMPOSE" ERROR
-            fi
+        sudo curl -L "${LINK_DOCKERCOMPOSE_INSTALL}${UNAME_S}-${UNAME_M}" -o /usr/local/bin/docker-compose
+        sudo chmod +x /usr/local/bin/docker-compose
+        if command -v docker-compose >/dev/null; then
+            LcLib_printer_loading "DOCKER-COMPOSE" OK
         else
             LcLib_printer_loading "DOCKER-COMPOSE" ERROR
         fi
