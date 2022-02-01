@@ -15,6 +15,7 @@ LINK_DOCKER_INSTALL='https://raw.githubusercontent.com/docker/docker-install/mas
 LINK_DOCKERCOMPOSE_INSTALL='https://github.com/docker/compose/releases/download/v2.2.3/docker-compose-'
 LINK_AVALANCHE_CONFIG='https://raw.githubusercontent.com/clementlvx/LcLib-shell/master/ssh/sshd_config'
 
+DEBUG=$1
 UNAME_S=$(uname -s)
 UNAME_M=$(uname -m)
 LOG_DIR=/var/log
@@ -105,7 +106,7 @@ ScriptName=`basename "$0" .sh`
 #Other
     LcLib_execNull() {
         command=$1
-        if [ $1 = "-debug" ]; then
+        if [ $DEBUG = "-debug" ]; then
             sudo sh -c "${command}"
         else
             sudo sh -c "${command}" &> /dev/null
