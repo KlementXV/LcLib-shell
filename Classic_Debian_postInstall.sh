@@ -13,7 +13,7 @@ Main() {
     LcLib_install_docker
     LcLib_install_dockerCompose
 
-    if [ "$2" = "0" ]; then
+    if [ "$2" != "1" ]; then
         if [ "$1" != "-keep" ]; then rm ./LcLib-shell.sh; exit 0; fi
     fi
 }
@@ -22,7 +22,8 @@ if test -f ./LcLib-shell.sh; then
     Main $1 "1"
 else
     if [[ `wget -S --spider "${LINK_LCLIB}" 2>&1 | grep 'HTTP/1.1 200 OK'` ]]; then
-        wget https://raw.githubusercontent.com/clementlvx/LcLib-shell/master/LcLib-shell.sh
-        echo "RESTART COMMAND"
+        wget ${LINK_LCLIB}
+        sleep 5
+        Main $1 "0"
     fi
 fi
