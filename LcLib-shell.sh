@@ -122,15 +122,6 @@ ScriptName=`basename "$0" .sh`
         program=$1
         LcLib_execNull "command -v ${program}"
     }
-    LcLib_alreadyInstalledd(){
-        program=$1
-        if LcLib_execNull "command -v ${program}"
-        then
-            echo "yes"
-        else
-            echo "no"
-        fi
-    }
     LcLib_update_system() { # LcLib_update_system
         LcLib_printer "--> UPDATE SYSTEM" INFO
         LcLib_execNull "apt-get -qq update && apt-get -qq upgrade -y && apt-get -qq full-upgrade -y && apt-get -qq autoremove -y"
@@ -143,10 +134,6 @@ ScriptName=`basename "$0" .sh`
         for i in $PROGRAMS; do
             LcLib_printer_loading "${i}" INSTALL
             if ! LcLib_alreadyInstalled "${i}"; then
-                if [ $OPTION = "-force" ]; then
-                    LcLib_execNull "apt-get install -y ${i}"
-                    LcLib_printer_loading "${i}" OK
-                else
                     if LcLib_execNull "apt-get install -y ${i}"; then
                         if ! LcLib_alreadyInstalled "${i}"; then
                             LcLib_printer_loading "${i}" ERROR
@@ -156,7 +143,6 @@ ScriptName=`basename "$0" .sh`
                     else
                         LcLib_printer_loading "${i}" ERROR
                     fi
-                fi
             else
                 LcLib_printer_loading "${i}" ALREADY
             fi
@@ -226,12 +212,12 @@ ScriptName=`basename "$0" .sh`
     LcLib_install_firewall() { # LcLib_install_firewall iptables
         PROGRAM=$1
         if [ "$PROGRAM" = "ufw" ]; then 
-            LcLib_justInstall "-classic" "ufw"
+            LcLib_justInstall "ufw"
         elif [ "$PROGRAM" = "iptables" ]; then 
-            LcLib_justInstall "-classic" "iptables"
+            LcLib_justInstall "iptables"
             LcLib_execNull "echo iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo debconf-set-selections"
             LcLib_execNull "echo iptables-persistent iptables-persistent/autosave_v6 boolean true | sudo debconf-set-selections"
-            LcLib_justInstall "-force" "iptables-persistent"
+            LcLib_justInstall "iptables-persistent"
         else
             LcLib_printer "$1 UNSUPPORTED INSTALLATION" ERROR
         fi
