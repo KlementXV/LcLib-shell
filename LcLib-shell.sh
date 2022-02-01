@@ -106,11 +106,7 @@ ScriptName=`basename "$0" .sh`
 #Other
     LcLib_execNull() {
         command=$1
-        if [ $DEBUG = "-debug" ]; then
-            sudo sh -c "${command}"
-        else
-            sudo sh -c "${command}" &> /dev/null
-        fi
+        sudo sh -c "${command}" &> /dev/null
     }
     LcLib_testLink(){
         link=$1
@@ -143,6 +139,10 @@ ScriptName=`basename "$0" .sh`
         for i in $PROGRAMS; do
             LcLib_printer_loading "${i}" INSTALL
             if ! LcLib_alreadyInstalled "${i}"; then
+                if [ $OPTION = "-force" ]; then
+                    LcLib_execNull "apt-get install -y ${i}"
+                    LcLib_printer_loading "${i}" OK
+                else
                     if LcLib_execNull "apt-get install -y ${i}"; then
                         if ! LcLib_alreadyInstalled "${i}"; then
                             LcLib_printer_loading "${i}" ERROR
@@ -152,6 +152,7 @@ ScriptName=`basename "$0" .sh`
                     else
                         LcLib_printer_loading "${i}" ERROR
                     fi
+                fi
             else
                 LcLib_printer_loading "${i}" ALREADY
             fi
