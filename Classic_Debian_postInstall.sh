@@ -4,12 +4,12 @@ LINK_LCLIB='https://raw.githubusercontent.com/clementlvx/LcLib-shell/master/LcLi
 
 Main() {
     source ./LcLib-shell.sh -debug
-
-    LcLib_update_dns 1.1.1.1 8.8.8.8 8.8.4.4
-    LcLib_install_firewall iptables
-    LcLib_update_firewall iptables docker
+    echo $1
+    LcLib_update_dns "1.1.1.1" "8.8.8.8" "8.8.4.4"
+    LcLib_install_firewall "iptables"
+    LcLib_update_firewall "iptables" "docker"
     LcLib_anssi_conf
-    LcLib_update_ssh 22 clm
+    LcLib_update_ssh 22 "clm"
     LcLib_install_docker
     LcLib_install_dockerCompose
 }
@@ -25,5 +25,3 @@ else
         Main $1
     fi
 fi
-#if [ "$2" != "1" ]; then if [ "$1" != "-keep" ]; then rm ./LcLib-shell.sh; exit 0; fi; fi
-#if [ "$FILEE" != "1" ] && [ "$1" != "-keep" ]; then rm ./LcLib-shell.sh; exit 0; fi
