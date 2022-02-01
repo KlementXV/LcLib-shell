@@ -19,9 +19,9 @@ if test -f ./LcLib-shell.sh; then
     Main $1
 else
     if [[ `wget -S --spider "${LINK_LCLIB}" 2>&1 | grep 'HTTP/1.1 200 OK'` ]]; then
-        echo -e -ne "\033[0;36mDOWNLOAD LIBRARY - \033[0m \r"
+        echo -e -ne "\033[0;35mDOWNLOAD LIBRARY - \033[0m \r"
         sudo sh -c "wget ${LINK_LCLIB} && sleep 5" 2> /dev/null
-        echo -e -ne "\033[0;36mDOWNLOAD LIBRARY - DONE\033[0m \r"
+        echo -e -ne "\033[0;32mDOWNLOAD LIBRARY - DONE\033[0m \r"
         echo -ne '\n'
         EXIST="0"
         Main $1
