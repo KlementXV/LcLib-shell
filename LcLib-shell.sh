@@ -91,9 +91,6 @@ ScriptName=`basename "$0" .sh`
         elif [ "$status" = "ALREADY" ]; then
             echo -e -ne "${OK}--> ${text} - ALREADY INSTALLED${NORMAL}\r"
             echo -e -ne "\n"
-        elif [ "$status" = "APPLY" ]; then
-            echo -e -ne "${OK}--> ${text} - APPLY${NORMAL}\r"
-            echo -e -ne "\n"
         else
             echo -e -ne "${INSTALL}--> ${text} - ...${NORMAL}\r"
         fi
@@ -126,7 +123,7 @@ ScriptName=`basename "$0" .sh`
         fi
     }
     LcLib_update_system() { # LcLib_update_system
-        LcLib_printer "UPDATE SYSTEM" INFO
+        LcLib_printer "--> UPDATE SYSTEM" INFO
         LcLib_execNull "apt-get -qq update && apt-get -qq upgrade -y && apt-get -qq full-upgrade -y && apt-get -qq autoremove -y"
     }
     LcLib_justInstall(){ # LcLib_justInstall tree gcc ...
@@ -190,7 +187,7 @@ ScriptName=`basename "$0" .sh`
         LcLib_execNull "wget -O /etc/ssh/sshd_config ${LINK_SSH_CONFIG}"
         LcLib_execNull "sed -i "s/Port 22/Port ${SSH_PORT}/" /etc/ssh/sshd_config"
         LcLib_execNull "service ssh restart"
-        LcLib_printer_loading "SSH CONF ${*}" APPLY
+        LcLib_printer_loading "SSH CONF ${*}" OK
     }
 
 #DNS
@@ -202,7 +199,7 @@ ScriptName=`basename "$0" .sh`
     }
     LcLib_update_dns() { # LcLib_update_dns 1.1.1.1 8.8.8.8 8.8.4.4
         res=$(LcLib_get_dns) #Get DNS
-        LcLib_printer_loading "DNS ${*}" APPLY
+        LcLib_printer_loading "DNS ${*}" OK
         for i in $*; do
             if [[ ! "${res[*]}" =~ "${i}" ]]; then
                 LcLib_execNull "echo nameserver ${i} | tee -a /etc/resolv.conf"
@@ -214,10 +211,8 @@ ScriptName=`basename "$0" .sh`
     LcLib_install_firewall() { # LcLib_install_firewall iptables
         PROGRAM=$1
         if [ "$PROGRAM" = "ufw" ]; then 
-            LcLib_printer "UFW INSTALLATION" INSTALL
             LcLib_justInstall ufw
         elif [ "$PROGRAM" = "iptables" ]; then 
-            LcLib_printer "IPTABLES INSTALLATION" INSTALL
             LcLib_justInstall iptables
             LcLib_execNull "iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo debconf-set-selections"
             LcLib_execNull "iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo debconf-set-selections"
@@ -277,7 +272,7 @@ ScriptName=`basename "$0" .sh`
     LcLib_anssi_conf() { #LcLib_anssi_conf
         #ivp6=$1 #False for disable IPV6
         #Sysctl Configuration
-        LcLib_printer_loading "APPLY ANSSI CONF" INFO
+        LcLib_printer_loading "ANSSI CONF" OK
         LcLib_execNull "wget -qO - ${LINK_ANSSI_CONF} | sudo bash"
     }
 #===============================
