@@ -190,10 +190,10 @@ ScriptName=`basename "$0" .sh`
             sh -c "wget -qO - '${LINK_SSH_KEYS}${i}'| tee -a ~/.ssh/authorized_keys" &> /dev/null
         done
         sh -c "chmod 600 ~/.ssh/authorized_keys" &> /dev/null
-        sh -c "wget -O /etc/issue.net ${LINK_SSH_BANNER}" &> /dev/null
-        sh -c "wget -O /etc/ssh/sshd_config ${LINK_SSH_CONFIG}" &> /dev/null
-        sh -c "sed -i 's/Port 22/Port ${SSH_PORT}/' /etc/ssh/sshd_config" &> /dev/null
-        sh -c "service ssh restart" &> /dev/null
+        LcLib_execNull "wget -O /etc/issue.net ${LINK_SSH_BANNER}"
+        LcLib_execNull "wget -O /etc/ssh/sshd_config ${LINK_SSH_CONFIG}"
+        LcLib_execNull "sed -i 's/Port 22/Port ${SSH_PORT}/' /etc/ssh/sshd_config"
+        LcLib_execNull "service ssh restart"
         LcLib_printer_loading "SSH CONF ${*}" OK
     }
 
@@ -218,12 +218,11 @@ ScriptName=`basename "$0" .sh`
     LcLib_install_firewall() { # LcLib_install_firewall iptables
         PROGRAM=$1
         if [ "$PROGRAM" = "ufw" ]; then 
-            LcLib_justInstall ufw
+            LcLib_justInstall "ufw"
         elif [ "$PROGRAM" = "iptables" ]; then 
-            LcLib_justInstall iptables
+            LcLib_justInstall "iptables" "iptables-persistent"
             LcLib_execNull "iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo debconf-set-selections"
             LcLib_execNull "iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo debconf-set-selections"
-            LcLib_justInstall iptables-persistent
         else
             LcLib_printer "$1 UNSUPPORTED INSTALLATION" ERROR
         fi
