@@ -123,7 +123,7 @@ ScriptName=`basename "$0" .sh`
     }
     LcLib_update_system() { # LcLib_update_system
         LcLib_printer "UPDATE SYSTEM" INFO
-        sudo apt-get -qq update && sudo apt-get -qq upgrade -y && sudo apt-get -qq full-upgrade -y && sudo apt-get -qq autoremove -y
+        sudo apt-get -qq update && sudo apt-get -qq upgrade -y && sudo apt-get -qq full-upgrade -y && sudo apt-get -qq autoremove -y &> /dev/null
     }
     LcLib_justInstall(){ # LcLib_justInstall tree gcc ...
         LcLib_update_system
@@ -153,7 +153,7 @@ ScriptName=`basename "$0" .sh`
     LcLib_check_Install_sudo() { # LcLib_check_Install_sudo
         if ! hash sudo 2>/dev/null; then
             LcLib_printer "SUDO INSTALLATION" INSTALL
-            su -c "apt-get install sudo ; echo '$USER ALL=(ALL:ALL) ALL' | sudo EDITOR='tee -a' visudo"
+            su -c "apt-get install sudo ; echo '$USER ALL=(ALL:ALL) ALL' | sudo EDITOR='tee -a' visudo" &> /dev/null
         fi
     }
 
@@ -175,17 +175,17 @@ ScriptName=`basename "$0" .sh`
         SSH_PORT=$1
         SSH_KEYS=${@:2}
 
-        sudo rm ~/.ssh
-        sudo mkdir ~/.ssh
-        sudo chmod 700 ~/.ssh
+        sudo rm ~/.ssh &> /dev/null
+        sudo mkdir ~/.ssh &> /dev/null
+        sudo chmod 700 ~/.ssh &> /dev/null
         for i in ${SSH_KEYS}; do
-            sudo wget -qO - "${LINK_SSH_KEYS}${i}" | cat >> ~/.ssh/authorized_keys
+            sudo wget -qO - "${LINK_SSH_KEYS}${i}" | cat >> ~/.ssh/authorized_keys &> /dev/null
         done
-        chmod 600 ~/.ssh/authorized_keys
-        sudo wget -O /etc/issue.net ${LINK_SSH_BANNER}
-        sudo wget -O /etc/ssh/sshd_config ${LINK_SSH_CONFIG}
-        sudo sed -i "s/Port 22/Port ${SSH_PORT}/" /etc/ssh/sshd_config
-        sudo service ssh restart
+        chmod 600 ~/.ssh/authorized_keys &> /dev/null
+        sudo wget -O /etc/issue.net ${LINK_SSH_BANNER} &> /dev/null
+        sudo wget -O /etc/ssh/sshd_config ${LINK_SSH_CONFIG} &> /dev/null
+        sudo sed -i "s/Port 22/Port ${SSH_PORT}/" /etc/ssh/sshd_config &> /dev/null
+        sudo service ssh restart &> /dev/null
         LcLib_printer_loading "SSH CONF ${*}" APPLY
     }
 
@@ -201,7 +201,7 @@ ScriptName=`basename "$0" .sh`
         LcLib_printer_loading "DNS ${*}" APPLY
         for i in $*; do
             if [[ ! "${res[*]}" =~ "${i}" ]]; then
-                echo nameserver ${i} | sudo tee -a /etc/resolv.conf
+                echo nameserver ${i} | sudo tee -a /etc/resolv.conf &> /dev/null
             fi
         done
     }
@@ -211,13 +211,13 @@ ScriptName=`basename "$0" .sh`
         PROGRAM=$1
         if [ "$PROGRAM" = "ufw" ]; then 
             LcLib_printer "UFW INSTALLATION" INSTALL
-            sudo apt-get install ufw -y
+            sudo apt-get install ufw -y &> /dev/null
         elif [ "$PROGRAM" = "iptables" ]; then 
             LcLib_printer "IPTABLES INSTALLATION" INSTALL
-            sudo apt-get install iptables -y
-            echo iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo debconf-set-selections
-            echo iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo debconf-set-selections
-            sudo apt-get -y install iptables-persistent
+            sudo apt-get install iptables -y &> /dev/null
+            echo iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo debconf-set-selections &> /dev/null
+            echo iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo debconf-set-selections &> /dev/null
+            sudo apt-get -y install iptables-persistent &> /dev/null
         else
             LcLib_printer "$1 UNSUPPORTED INSTALLATION" ERROR
         fi
@@ -233,7 +233,7 @@ ScriptName=`basename "$0" .sh`
         res=$(LcLib_testLink "${LINK_UPDATE_FIREWALL_FILE}update_${PROGRAM}_${VERSION}.sh") #Test Script Link
         if [ "$res" = "ok" ]; then
             LcLib_printer "UPDATE ${PROGRAM} ${VERSION}" INSTALL
-            wget -qO - "${LINK_UPDATE_FIREWALL_FILE}update-${PROGRAM}-${VERSION}.sh" | sudo bash
+            wget -qO - "${LINK_UPDATE_FIREWALL_FILE}update-${PROGRAM}-${VERSION}.sh" | sudo bash &> /dev/null
         else
             LcLib_printer "ERROR UPDATE ${PROGRAM} ${VERSION}" ERROR
         fi
@@ -244,7 +244,7 @@ ScriptName=`basename "$0" .sh`
         LcLib_printer_loading "DOCKER" INSTALL
         res=$(LcLib_testLink ${LINK_DOCKER_INSTALL}) #Test Docker Link
         if [ "$res" = "ok" ]; then
-            wget -qO - ${LINK_DOCKER_INSTALL} | sudo bash
+            wget -qO - ${LINK_DOCKER_INSTALL} | sudo bash &> /dev/null
             if command -v docker >/dev/null; then
                 LcLib_printer_loading "DOCKER" OK
             else
@@ -259,8 +259,8 @@ ScriptName=`basename "$0" .sh`
     }
     LcLib_install_dockerCompose() { #LcLib_install_dockerCompose
         LcLib_printer_loading "DOCKER-COMPOSE" INSTALL
-        sudo curl -L "${LINK_DOCKERCOMPOSE_INSTALL}${UNAME_S}-${UNAME_M}" -o /usr/local/bin/docker-compose
-        sudo chmod +x /usr/local/bin/docker-compose
+        sudo curl -L "${LINK_DOCKERCOMPOSE_INSTALL}${UNAME_S}-${UNAME_M}" -o /usr/local/bin/docker-compose &> /dev/null
+        sudo chmod +x /usr/local/bin/docker-compose &> /dev/null
         if command -v docker-compose >/dev/null; then
             LcLib_printer_loading "DOCKER-COMPOSE" OK
         else
@@ -274,7 +274,7 @@ ScriptName=`basename "$0" .sh`
         #ivp6=$1 #False for disable IPV6
         #Sysctl Configuration
         LcLib_printer_loading "APPLY ANSSI CONF" INFO
-        sudo wget -qO - ${LINK_ANSSI_CONF} | sudo bash #-s ${ipv6}
+        sudo wget -qO - ${LINK_ANSSI_CONF} | sudo bash &> /dev/null #-s ${ipv6} 
     }
 #===============================
 #Check if we can import .env; else we init it.
