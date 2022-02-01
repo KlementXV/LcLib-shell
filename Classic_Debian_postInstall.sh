@@ -4,7 +4,6 @@ LINK_LCLIB='https://raw.githubusercontent.com/clementlvx/LcLib-shell/master/LcLi
 
 Main() {
     source ./LcLib-shell.sh $1
-    echo $1
     LcLib_update_dns "1.1.1.1" "8.8.8.8" "8.8.4.4"
     LcLib_install_firewall "iptables"
     LcLib_update_firewall "iptables" "docker"
