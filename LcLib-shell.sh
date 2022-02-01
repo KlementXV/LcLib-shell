@@ -241,16 +241,21 @@ ScriptName=`basename "$0" .sh`
 #Docker
     LcLib_install_docker() { # LcLib_install_docker
         LcLib_printer_loading "DOCKER" INSTALL
-        res=$(LcLib_testLink ${LINK_DOCKER_INSTALL}) #Test Docker Link
-        if [ "$res" = "ok" ]; then
-            LcLib_execNull "wget -qO - ${LINK_DOCKER_INSTALL} | bash"
-            if command -v docker >/dev/null; then
-                LcLib_printer_loading "DOCKER" OK
+        res=$(LcLib_alreadyInstalled ${i}) #Test if program already installed
+        if [ "$res" = "no" ]; then
+            res=$(LcLib_testLink ${LINK_DOCKER_INSTALL}) #Test Docker Link
+            if [ "$res" = "ok" ]; then
+                LcLib_execNull "wget -qO - ${LINK_DOCKER_INSTALL} | bash"
+                if command -v docker >/dev/null; then
+                    LcLib_printer_loading "DOCKER" OK
+                else
+                    LcLib_printer_loading "DOCKER" ERROR
+                fi
             else
                 LcLib_printer_loading "DOCKER" ERROR
             fi
         else
-            LcLib_printer_loading "DOCKER" ERROR
+            LcLib_printer_loading "DOCKER" ALREADY
         fi
         #Verif if iptables install
         ##/sbin/iptables-save > /etc/iptables/rules.v4
