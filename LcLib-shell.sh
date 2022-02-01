@@ -114,8 +114,7 @@ ScriptName=`basename "$0" .sh`
         fi
     }
     LcLib_alreadyInstalledd(){
-        program=$1
-        sudo sh -c "command -v ${program}"
+        command -v "$@" > /dev/null 2>&1
     }
     LcLib_alreadyInstalled(){
         program=$1
@@ -246,7 +245,7 @@ ScriptName=`basename "$0" .sh`
     LcLib_install_docker() { # LcLib_install_docker
         LcLib_printer_loading "DOCKER" INSTALL
         #res=$(LcLib_alreadyInstalledd "docker") #Test if program already installed
-        if LcLib_alreadyInstalledd "docker"; then
+        if LcLib_alreadyInstalledd docker; then
             res=$(LcLib_testLink ${LINK_DOCKER_INSTALL}) #Test Docker Link
             if [ "$res" = "ok" ]; then
                 LcLib_execNull "wget -qO - ${LINK_DOCKER_INSTALL} | bash"
