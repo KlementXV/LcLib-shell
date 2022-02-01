@@ -122,15 +122,6 @@ ScriptName=`basename "$0" .sh`
         program=$1
         LcLib_execNull "command -v ${program}"
     }
-    LcLib_alreadyInstalledd(){
-        program=$1
-        if LcLib_execNull "command -v ${program}"
-        then
-            echo "yes"
-        else
-            echo "no"
-        fi
-    }
     LcLib_update_system() { # LcLib_update_system
         LcLib_printer "--> UPDATE SYSTEM" INFO
         LcLib_execNull "apt-get -qq update && apt-get -qq upgrade -y && apt-get -qq full-upgrade -y && apt-get -qq autoremove -y"
