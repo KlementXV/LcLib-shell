@@ -220,9 +220,10 @@ ScriptName=`basename "$0" .sh`
         if [ "$PROGRAM" = "ufw" ]; then 
             LcLib_justInstall "ufw"
         elif [ "$PROGRAM" = "iptables" ]; then 
+            LcLib_justInstall "iptables"
+            LcLib_execNull "echo iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo debconf-set-selections"
+            LcLib_execNull "echo iptables-persistent iptables-persistent/autosave_v6 boolean true | sudo debconf-set-selections"
             LcLib_justInstall "iptables" "iptables-persistent"
-            LcLib_execNull "iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo debconf-set-selections"
-            LcLib_execNull "iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo debconf-set-selections"
         else
             LcLib_printer "$1 UNSUPPORTED INSTALLATION" ERROR
         fi
