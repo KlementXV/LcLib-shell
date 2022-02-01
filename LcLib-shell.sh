@@ -108,7 +108,7 @@ ScriptName=`basename "$0" .sh`
 #Other
     LcLib_execNull() {
         command=$1
-        sh -c "${command}" &> /dev/null
+        sudo sh -c "${command}" &> /dev/null
     }
     LcLib_testLink(){
         link=$1
@@ -183,9 +183,9 @@ ScriptName=`basename "$0" .sh`
         LcLib_execNull "mkdir ~/.ssh"
         LcLib_execNull "chmod 700 ~/.ssh"
         for i in ${SSH_KEYS}; do
-            LcLib_execNull "wget -qO - "${LINK_SSH_KEYS}${i}"| cat >> ~/.ssh/authorized_keys"
+            LcLib_execNull "wget -qO - '${LINK_SSH_KEYS}${i}'| cat >> ~/.ssh/authorized_keys"
         done
-        chmod 600 ~/.ssh/authorized_keys"
+        LcLib_execNull "chmod 600 ~/.ssh/authorized_keys"
         LcLib_execNull "wget -O /etc/issue.net ${LINK_SSH_BANNER}"
         LcLib_execNull "wget -O /etc/ssh/sshd_config ${LINK_SSH_CONFIG}"
         LcLib_execNull "sed -i "s/Port 22/Port ${SSH_PORT}/" /etc/ssh/sshd_config"
