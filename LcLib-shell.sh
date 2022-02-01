@@ -218,7 +218,7 @@ ScriptName=`basename "$0" .sh`
             LcLib_justInstall iptables
             LcLib_execNull "iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo debconf-set-selections"
             LcLib_execNull "iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo debconf-set-selections"
-            LcLib_execNull "apt-get -y install iptables-persistent"
+            LcLib_justInstall iptables-persistent
         else
             LcLib_printer "$1 UNSUPPORTED INSTALLATION" ERROR
         fi
