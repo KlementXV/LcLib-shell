@@ -27,4 +27,4 @@ else
         Main $1
     fi
 fi
-if [ "$FILEE" != "1" ] && [ "$1" != "-keep" ]; then rm ./LcLib-shell.sh; exit 0; fi
+if [ "$EXIST" != "1" ] && [ "$1" != "-keep" ]; then rm ./LcLib-shell.sh; exit 0; fi
