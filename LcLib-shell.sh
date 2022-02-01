@@ -105,7 +105,7 @@ ScriptName=`basename "$0" .sh`
 #Other
     LcLib_execNull() {
         command=$1
-        if [ "$1" = "-debug" ];
+        if [ "$1" = "-debug" ]; then
             sudo sh -c "${command}"
         else
             sudo sh -c "${command}" &> /dev/null
