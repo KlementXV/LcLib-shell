@@ -244,7 +244,7 @@ ScriptName=`basename "$0" .sh`
     LcLib_install_docker() { # LcLib_install_docker
         LcLib_printer_loading "DOCKER" INSTALL
         #res=$(LcLib_alreadyInstalledd "docker") #Test if program already installed
-        if ! LcLib_alreadyInstalled docker; then
+        if ! LcLib_alreadyInstalled "docker"; then
             res=$(LcLib_testLink ${LINK_DOCKER_INSTALL}) #Test Docker Link
             if [ "$res" = "ok" ]; then
                 LcLib_execNull "wget -qO - ${LINK_DOCKER_INSTALL} | bash"
@@ -265,7 +265,7 @@ ScriptName=`basename "$0" .sh`
     }
     LcLib_install_dockerCompose() { #LcLib_install_dockerCompose
         LcLib_printer_loading "DOCKER-COMPOSE" INSTALL
-        if ! LcLib_alreadyInstalled docker-compose; then
+        if ! LcLib_alreadyInstalled "docker-compose"; then
             LcLib_execNull "curl -L "${LINK_DOCKERCOMPOSE_INSTALL}${UNAME_S}-${UNAME_M}" -o /usr/local/bin/docker-compose"
             LcLib_execNull "chmod +x /usr/local/bin/docker-compose"
             if command -v docker-compose >/dev/null; then
