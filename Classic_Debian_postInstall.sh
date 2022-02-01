@@ -23,7 +23,6 @@ if test -f ./LcLib-shell.sh; then
 else
     if [[ `wget -S --spider "${LINK_LCLIB}" 2>&1 | grep 'HTTP/1.1 200 OK'` ]]; then
         wget https://raw.githubusercontent.com/clementlvx/LcLib-shell/master/LcLib-shell.sh
-        Sleep 5
-        Main $1 "0"
+        echo "RESTART COMMAND"
     fi
 fi
