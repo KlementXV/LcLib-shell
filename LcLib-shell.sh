@@ -114,7 +114,8 @@ ScriptName=`basename "$0" .sh`
         fi
     }
     LcLib_alreadyInstalledd(){
-        command -v "$@" > /dev/null 2>&1
+        program=$1
+        LcLib_execNull "command -v ${program}"
     }
     LcLib_alreadyInstalled(){
         program=$1
