@@ -236,7 +236,7 @@ ScriptName=`basename "$0" .sh`
 
         res=$(LcLib_testLink "${LINK_UPDATE_FIREWALL_FILE}update_${PROGRAM}_${VERSION}.sh") #Test Script Link
         if [ "$res" = "ok" ]; then
-            LcLib_printer "UPDATE ${PROGRAM} ${VERSION}" INSTALL
+            LcLib_printer "UPDATE PB? ${PROGRAM} ${VERSION}" INSTALL
             LcLib_execNull "wget -qO - "${LINK_UPDATE_FIREWALL_FILE}update-${PROGRAM}-${VERSION}.sh" | bash"
         else
             LcLib_printer "ERROR UPDATE ${PROGRAM} ${VERSION}" ERROR
