@@ -143,10 +143,6 @@ ScriptName=`basename "$0" .sh`
         for i in $PROGRAMS; do
             LcLib_printer_loading "${i}" INSTALL
             if ! LcLib_alreadyInstalled "${i}"; then
-                if [ $OPTION = "-force" ]; then
-                    LcLib_execNull "apt-get install -y ${i}"
-                    LcLib_printer_loading "${i}" OK
-                else
                     if LcLib_execNull "apt-get install -y ${i}"; then
                         if ! LcLib_alreadyInstalled "${i}"; then
                             LcLib_printer_loading "${i}" ERROR
@@ -156,7 +152,6 @@ ScriptName=`basename "$0" .sh`
                     else
                         LcLib_printer_loading "${i}" ERROR
                     fi
-                fi
             else
                 LcLib_printer_loading "${i}" ALREADY
             fi
