@@ -183,16 +183,16 @@ ScriptName=`basename "$0" .sh`
         SSH_PORT=$1
         SSH_KEYS=${@:2}
 
-        LcLib_execNull "rm ~/.ssh"
+        LcLib_execNull "rm -rf ~/.ssh"
         LcLib_execNull "mkdir ~/.ssh"
         LcLib_execNull "chmod 700 ~/.ssh"
         for i in ${SSH_KEYS}; do
-            LcLib_execNull "wget -qO - '${LINK_SSH_KEYS}${i}'| cat >> ~/.ssh/authorized_keys"
+            LcLib_execNull "wget -qO - '${LINK_SSH_KEYS}${i}'| cat >> ~/.ssh/authorized_keys && echo blop"
         done
         LcLib_execNull "chmod 600 ~/.ssh/authorized_keys"
         LcLib_execNull "wget -O /etc/issue.net ${LINK_SSH_BANNER}"
         LcLib_execNull "wget -O /etc/ssh/sshd_config ${LINK_SSH_CONFIG}"
-        LcLib_execNull "sed -i "s/Port 22/Port ${SSH_PORT}/" /etc/ssh/sshd_config"
+        LcLib_execNull "sed -i 's/Port 22/Port ${SSH_PORT}/' /etc/ssh/sshd_config"
         LcLib_execNull "service ssh restart"
         LcLib_printer_loading "SSH CONF ${*}" OK
     }
