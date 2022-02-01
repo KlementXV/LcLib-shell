@@ -241,7 +241,7 @@ ScriptName=`basename "$0" .sh`
 #Docker
     LcLib_install_docker() { # LcLib_install_docker
         LcLib_printer_loading "DOCKER" INSTALL
-        res=$(LcLib_alreadyInstalled docker) #Test if program already installed
+        res=$(LcLib_alreadyInstalled "docker") #Test if program already installed
         if [ "$res" = "no" ]; then
             res=$(LcLib_testLink ${LINK_DOCKER_INSTALL}) #Test Docker Link
             if [ "$res" = "ok" ]; then
