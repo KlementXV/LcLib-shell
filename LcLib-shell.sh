@@ -232,14 +232,14 @@ ScriptName=`basename "$0" .sh`
         SSH_PORT=$(LcLib_get_sshPort) #Get SSH
         DNS=$(LcLib_get_dns) #Get DNS
 
-        LcLib_printer_loading "${PROGRAM} ${VERSION} CONF" INFO
+        LcLib_printer_loading "${PROGRAM} ${VERSION} CONF" INSTALL
 
         res=$(LcLib_testLink "${LINK_UPDATE_FIREWALL_FILE}update_${PROGRAM}_${VERSION}.sh") #Test Script Link
         if [ "$res" = "ok" ]; then
-            LcLib_printer "UPDATE PB? ${PROGRAM} ${VERSION}" INSTALL
             LcLib_execNull "wget -qO - "${LINK_UPDATE_FIREWALL_FILE}update-${PROGRAM}-${VERSION}.sh" | bash"
+            LcLib_printer_loading "${PROGRAM} ${VERSION} CONF" OK
         else
-            LcLib_printer "ERROR UPDATE ${PROGRAM} ${VERSION}" ERROR
+            LcLib_printer_loading "${PROGRAM} ${VERSION} CONF" ERROR
         fi
     }
 
