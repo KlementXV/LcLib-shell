@@ -113,11 +113,11 @@ ScriptName=`basename "$0" .sh`
             echo "ok"
         fi
     }
-    LcLib_alreadyInstalledd(){
+    LcLib_alreadyInstalled(){
         program=$1
         LcLib_execNull "command -v ${program}"
     }
-    LcLib_alreadyInstalled(){
+    LcLib_alreadyInstalledd(){
         program=$1
         if LcLib_execNull "command -v ${program}"
         then
@@ -134,11 +134,9 @@ ScriptName=`basename "$0" .sh`
         LcLib_update_system
         for i in $*; do
             LcLib_printer_loading "${i}" INSTALL
-            res=$(LcLib_alreadyInstalled ${i}) #Test if program already installed
-            if [ "$res" = "no" ]; then
+            if ! LcLib_alreadyInstalled ${i}; then
                 if LcLib_execNull "apt-get install -y ${i}"; then
-                    newRes=$(LcLib_alreadyInstalled ${i})
-                    if [ "$newRes" = "no" ]; then
+                    if ! LcLib_alreadyInstalled ${i}; then
                         LcLib_printer_loading "${i}" ERROR
                     else
                         LcLib_printer_loading "${i}" OK
@@ -246,7 +244,7 @@ ScriptName=`basename "$0" .sh`
     LcLib_install_docker() { # LcLib_install_docker
         LcLib_printer_loading "DOCKER" INSTALL
         #res=$(LcLib_alreadyInstalledd "docker") #Test if program already installed
-        if ! LcLib_alreadyInstalledd docker; then
+        if ! LcLib_alreadyInstalled docker; then
             res=$(LcLib_testLink ${LINK_DOCKER_INSTALL}) #Test Docker Link
             if [ "$res" = "ok" ]; then
                 LcLib_execNull "wget -qO - ${LINK_DOCKER_INSTALL} | bash"
