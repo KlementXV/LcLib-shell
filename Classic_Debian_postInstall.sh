@@ -3,7 +3,7 @@
 LINK_LCLIB='https://raw.githubusercontent.com/clementlvx/LcLib-shell/master/LcLib-shell.sh'
 
 Main() {
-    source ./LcLib-shell.sh #$1
+    source ./LcLib-shell.sh -debug
 
     LcLib_update_dns 1.1.1.1 8.8.8.8 8.8.4.4
     LcLib_install_firewall iptables
@@ -15,7 +15,6 @@ Main() {
 }
 
 if test -f ./LcLib-shell.sh; then
-    FILEE=1
     Main $1
 else
     if [[ `wget -S --spider "${LINK_LCLIB}" 2>&1 | grep 'HTTP/1.1 200 OK'` ]]; then
@@ -23,9 +22,8 @@ else
         sudo sh -c "wget ${LINK_LCLIB} && sleep 5" 2> /dev/null
         echo -e -ne "\033[0;36mDOWNLOAD LIBRARY - DONE\033[0m \r"
         echo -ne '\n'
-        
-        FILEE=0
         Main $1
     fi
 fi
+#if [ "$2" != "1" ]; then if [ "$1" != "-keep" ]; then rm ./LcLib-shell.sh; exit 0; fi; fi
 #if [ "$FILEE" != "1" ] && [ "$1" != "-keep" ]; then rm ./LcLib-shell.sh; exit 0; fi
