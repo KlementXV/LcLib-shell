@@ -15,6 +15,8 @@ LINK_DOCKER_INSTALL='https://raw.githubusercontent.com/docker/docker-install/mas
 LINK_DOCKERCOMPOSE_INSTALL='https://github.com/docker/compose/releases/download/v2.2.3/docker-compose-'
 
 DEBUG=$1
+if [ "$*" =~ "-debug" ]; then DEBUG=ON; exit 0; fi
+
 UNAME_S=$(uname -s)
 UNAME_M=$(uname -m)
 LOG_DIR=/var/log
@@ -105,7 +107,7 @@ ScriptName=`basename "$0" .sh`
 #Other
     LcLib_execNull() {
         command=$1
-        if [ "$DEBUG" = "-debug" ]; then
+        if [ "$DEBUG" = "ON" ]; then
             sudo sh -c "${command}"
         else
             sudo sh -c "${command}" &> /dev/null
