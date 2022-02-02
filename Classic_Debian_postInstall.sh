@@ -13,7 +13,7 @@ LINK_LCLIB='https://raw.githubusercontent.com/clementlvx/LcLib-shell/master/LcLi
 Main() {
     source ./LcLib-shell.sh $*
     LcLib_update_hostname "${HOSTNAME}" "${PUBLIC_IP}"
-    LcLib_update_dns DNS
+    LcLib_update_dns $DNS
     LcLib_install_firewall "iptables"
     LcLib_update_firewall "iptables" "docker"
     LcLib_anssi_conf
@@ -28,7 +28,7 @@ if test -f ./LcLib-shell.sh; then
 else
     if [[ `wget -S --spider "${LINK_LCLIB}" 2>&1 | grep 'HTTP/1.1 200 OK'` ]]; then
         echo -e -ne "\033[0;35mDOWNLOAD LIBRARY - \033[0m \r"
-        sudo sh -c "wget ${LINK_LCLIB}" 2> /dev/null
+        sh -c "wget ${LINK_LCLIB}" 2> /dev/null
         sleep 5
         echo -e -ne "\033[0;32mDOWNLOAD LIBRARY - DONE\033[0m \r"
         echo -ne '\n'
@@ -36,4 +36,4 @@ else
         Main $*
     fi
 fi
-if [ "$EXIST" != "1" ] && [[ ! "${*}" =~ "-keep" ]]; then rm ./LcLib-shell.sh; exit 0; fi
+if [ "$EXIST" != "1" ] && [[ ! "${*}" =~ "-keep" ]]; then rm -rf ./LcLib-shell.sh; exit 0; fi
