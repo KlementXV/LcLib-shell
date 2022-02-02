@@ -1,8 +1,6 @@
 #!/bin/bash
 
 #SET
-HOSTNAME="HOSTNAME.DOMAIN.FR"
-PUBLIC_IP="X.X.X.X"
 DNS=("1.1.1.1" "8.8.8.8" "8.8.4.4")
 SSH_PORT=22
 SSH_KEY=("clm")
@@ -12,7 +10,7 @@ LINK_LCLIB='https://raw.githubusercontent.com/clementlvx/LcLib-shell/master/LcLi
 
 Main() {
     source ./LcLib-shell.sh $*
-    LcLib_update_hostname "${HOSTNAME}" "${PUBLIC_IP}"
+
     LcLib_update_dns ${DNS[@]}
     LcLib_install_firewall "iptables"
     LcLib_update_firewall "iptables" "docker"
