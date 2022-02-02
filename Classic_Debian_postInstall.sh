@@ -4,6 +4,7 @@ LINK_LCLIB='https://raw.githubusercontent.com/clementlvx/LcLib-shell/master/LcLi
 
 Main() {
     source ./LcLib-shell.sh $1
+    LcLib_update_hostname $2 $3
     LcLib_update_dns "1.1.1.1" "8.8.8.8" "8.8.4.4"
     LcLib_install_firewall "iptables"
     LcLib_update_firewall "iptables" "docker"
@@ -15,7 +16,7 @@ Main() {
 
 if test -f ./LcLib-shell.sh; then
     EXIST="1"
-    Main $1
+    Main $*
 else
     if [[ `wget -S --spider "${LINK_LCLIB}" 2>&1 | grep 'HTTP/1.1 200 OK'` ]]; then
         echo -e -ne "\033[0;35mDOWNLOAD LIBRARY - \033[0m \r"
