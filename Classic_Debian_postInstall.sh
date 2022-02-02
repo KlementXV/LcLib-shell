@@ -13,11 +13,11 @@ LINK_LCLIB='https://raw.githubusercontent.com/clementlvx/LcLib-shell/master/LcLi
 Main() {
     source ./LcLib-shell.sh $*
     LcLib_update_hostname "${HOSTNAME}" "${PUBLIC_IP}"
-    LcLib_update_dns $DNS
+    LcLib_update_dns ${DNS[@]}
     LcLib_install_firewall "iptables"
     LcLib_update_firewall "iptables" "docker"
     LcLib_anssi_conf
-    LcLib_update_ssh "${SSH_PORT}" $SSH_KEY
+    LcLib_update_ssh "${SSH_PORT}" ${SSH_KEY[@]}
     LcLib_install_docker
     LcLib_install_dockerCompose
 }
