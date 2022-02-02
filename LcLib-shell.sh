@@ -174,9 +174,11 @@ ScriptName=`basename "$0" .sh`
     }
 #Hostname
     LcLib_update_hostname() { # LcLib_update_hostname "hostname"
-        LcLib_execNull "hostnamectl set-hostname ${1}"
-        LcLib_execNull "echo '127.0.0.1   ${1}' | sudo tee -a /etc/hosts"
-        LcLib_execNull "echo '${2}   ${1}' | sudo tee -a /etc/hosts"
+        if [ "${$HOSTNAME}" != "${1}" ]; then
+            LcLib_execNull "hostnamectl set-hostname ${1}"
+            LcLib_execNull "echo '127.0.0.1   ${1}' | sudo tee -a /etc/hosts"
+            LcLib_execNull "echo '${2}   ${1}' | sudo tee -a /etc/hosts"
+        fi
     }
 #SSH
     LcLib_get_sshPort() { # LcLib_get_sshPort
