@@ -3,8 +3,8 @@
 LINK_LCLIB='https://raw.githubusercontent.com/clementlvx/LcLib-shell/master/LcLib-shell.sh'
 
 Main() {
-    source ./LcLib-shell.sh $1
-    LcLib_update_hostname $2 $3
+    source ./LcLib-shell.sh $*
+    LcLib_update_hostname "$1" "$2"
     LcLib_update_dns "1.1.1.1" "8.8.8.8" "8.8.4.4"
     LcLib_install_firewall "iptables"
     LcLib_update_firewall "iptables" "docker"
@@ -27,4 +27,4 @@ else
         Main $1
     fi
 fi
-if [ "$EXIST" != "1" ] && [ "$1" != "-keep" ]; then rm ./LcLib-shell.sh; exit 0; fi
+if [ "$EXIST" != "1" ] && [ "$*" =~ "-keep" ]; then rm ./LcLib-shell.sh; exit 0; fi
