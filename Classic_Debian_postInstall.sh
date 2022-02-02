@@ -20,11 +20,12 @@ if test -f ./LcLib-shell.sh; then
 else
     if [[ `wget -S --spider "${LINK_LCLIB}" 2>&1 | grep 'HTTP/1.1 200 OK'` ]]; then
         echo -e -ne "\033[0;35mDOWNLOAD LIBRARY - \033[0m \r"
-        sudo sh -c "wget ${LINK_LCLIB} && sleep 5" 2> /dev/null
+        sudo sh -c "wget ${LINK_LCLIB}" 2> /dev/null
+        sleep 5
         echo -e -ne "\033[0;32mDOWNLOAD LIBRARY - DONE\033[0m \r"
         echo -ne '\n'
         EXIST="0"
-        Main $1
+        Main $*
     fi
 fi
 if [ "$EXIST" != "1" ] && [[ ! "${*}" =~ "-keep" ]]; then rm ./LcLib-shell.sh; exit 0; fi
