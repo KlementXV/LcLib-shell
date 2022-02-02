@@ -14,7 +14,7 @@ LINK_SSH_BANNER='https://raw.githubusercontent.com/clementlvx/LcLib-shell/master
 LINK_DOCKER_INSTALL='https://raw.githubusercontent.com/docker/docker-install/master/install.sh'
 LINK_DOCKERCOMPOSE_INSTALL='https://github.com/docker/compose/releases/download/v2.2.3/docker-compose-'
 
-if [[ ! "${*}" =~ "-debug" ]]; then DEBUG=ON; exit 0; fi
+if [[ "${*}" =~ "-debug" ]]; then DEBUG=ON; fi
 
 UNAME_S=$(uname -s)
 UNAME_M=$(uname -m)
