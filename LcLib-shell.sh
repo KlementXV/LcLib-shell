@@ -106,7 +106,7 @@ ScriptName=`basename "$0" .sh`
 #Other
     LcLib_execNull() {
         command=$1
-        if [ $DEBUG = "-debug" ]; then
+        if [ "$DEBUG" = "-debug" ]; then
             sudo sh -c "${command}"
         else
             sudo sh -c "${command}" &> /dev/null
@@ -134,7 +134,7 @@ ScriptName=`basename "$0" .sh`
         for i in $PROGRAMS; do
             LcLib_printer_loading "${i}" INSTALL
             if ! LcLib_alreadyInstalled "${i}"; then
-                if [ $OPTION = "-force" ]; then
+                if [ "$OPTION" = "-force" ]; then
                     LcLib_execNull "apt-get install -y ${i}"
                     LcLib_printer_loading "${i}" OK
                 else
