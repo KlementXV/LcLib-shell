@@ -1,15 +1,23 @@
 #!/bin/bash
 
+#SET
+HOSTNAME="HOSTNAME.DOMAIN.FR"
+PUBLIC_IP="X.X.X.X"
+DNS=("1.1.1.1" "8.8.8.8" "8.8.4.4")
+SSH_PORT=22
+SSH_KEY=("clm")
+
+
 LINK_LCLIB='https://raw.githubusercontent.com/clementlvx/LcLib-shell/master/LcLib-shell.sh'
 
 Main() {
     source ./LcLib-shell.sh $*
-    LcLib_update_hostname "$1" "$2"
-    LcLib_update_dns "1.1.1.1" "8.8.8.8" "8.8.4.4"
+    LcLib_update_hostname "${HOSTNAME}" "${PUBLIC_IP}"
+    LcLib_update_dns DNS
     LcLib_install_firewall "iptables"
     LcLib_update_firewall "iptables" "docker"
     LcLib_anssi_conf
-    LcLib_update_ssh 22 "clm"
+    LcLib_update_ssh "${SSH_PORT}" $SSH_KEY
     LcLib_install_docker
     LcLib_install_dockerCompose
 }
