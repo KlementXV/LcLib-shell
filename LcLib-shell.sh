@@ -13,7 +13,6 @@ LINK_SSH_CONFIG='https://raw.githubusercontent.com/clementlvx/LcLib-shell/master
 LINK_SSH_BANNER='https://raw.githubusercontent.com/clementlvx/LcLib-shell/master/ssh/issue.net'
 LINK_DOCKER_INSTALL='https://raw.githubusercontent.com/docker/docker-install/master/install.sh'
 LINK_DOCKERCOMPOSE_INSTALL='https://github.com/docker/compose/releases/download/v2.2.3/docker-compose-'
-LINK_AVALANCHE_CONFIG='https://raw.githubusercontent.com/clementlvx/LcLib-shell/master/ssh/sshd_config'
 
 DEBUG=$1
 UNAME_S=$(uname -s)
@@ -172,7 +171,12 @@ ScriptName=`basename "$0" .sh`
             exit
         fi
     }
-
+#Hostname
+    LcLib_update_hostname() { # LcLib_update_hostname "hostname"
+        LcLib_execNull "hostnamectl set-hostname ${1}"
+        LcLib_execNull "echo '127.0.0.1   ${1}' | sudo tee -a /etc/hosts"
+        LcLib_execNull "echo '${2}   ${1}' | sudo tee -a /etc/hosts"
+    }
 #SSH
     LcLib_get_sshPort() { # LcLib_get_sshPort
         cat /etc/ssh/sshd_config | grep "Port " | cut -d " " -f 2
