@@ -245,7 +245,7 @@ ScriptName=`basename "$0" .sh`
 
 #Docker
     LcLib_whichOS() { # LcLib_install_docker
-        if [ "$(awk -F= '/^NAME/{print $2}' /etc/os-release)" =~ "Debian" ]]; then 
+        if [[ "Debian" =~ "$(awk -F= '/^NAME/{print $2}' /etc/os-release)" ]]; then 
             echo="debian"
         elif [ "$(awk -F= '/^NAME/{print $2}' /etc/os-release)" =~ "Ubuntu" ]]; then 
             echo="ubuntu"
