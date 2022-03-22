@@ -1,0 +1,25 @@
+[
+  {
+ "version":1,
+ "results":[
+      {
+        "id": "D94131F3-0548-470A-99BB-FDC527A80C5E",
+        "name": "Journal Du Coin",
+        "language": "FR",
+        "link": "https://journalducoin.fr/wp-json/wp/v2/posts"
+      },
+      {
+        "id": "5043771D-3445-4769-B394-FABDB961799D",
+        "name": "Journal Du Coin - NW",
+        "language": "EN",
+        "link": "https://journalducoin.fr/wp-json/wp/v2/posts"
+      },
+      {
+        "id": "51CB7E9E-2A7F-4DC9-A364-941EAE3BDC45",
+        "name": "Journal Du Coin  - NW",
+        "language": "ES",
+        "link": "https://journalducoin.fr/wp-json/wp/v2/posts"
+      }
+    ]
+  }
+]
